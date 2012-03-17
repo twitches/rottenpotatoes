@@ -8,6 +8,7 @@ class MoviesController < ApplicationController
 
   def index
     @movies = Movie.all
+    @title_class = :hilite
   end
 
   def new
