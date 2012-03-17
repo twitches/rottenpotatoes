@@ -7,8 +7,14 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.order(params[:sort])
-    @header_class = { params[:sort].to_sym => 'hilite'}
+    @all_ratings = Movie.ratings
+    @filter_ratings = params[:ratings]
+    if not @filter_ratings
+      @filter_ratings = Hash[@all_ratings.map { |r| [r, 1]}]
+    end
+    sort = params[:sort] ? params[:sort].to_sym : nil
+    @movies = Movie.order(sort).find_all_by_rating(@filter_ratings.keys)
+    @header_class = { sort => 'hilite'}
   end
 
   def new
