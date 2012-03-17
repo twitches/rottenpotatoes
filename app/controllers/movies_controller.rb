@@ -7,8 +7,8 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.all
-    @title_class = :hilite
+    @movies = Movie.order(params[:sort])
+    @header_class = { params[:sort].to_sym => 'hilite'}
   end
 
   def new
