@@ -5,20 +5,24 @@ class MoviesController < ApplicationController
     # will render app/views/movies/show.<extension> by default
   end
 
-  @@session_keys = [:ratings, :sort]
+  @@session_keys = %w[ratings sort]
+  def get_session(hsh)
+    valid = @@session_keys.
+      select {|key| hsh.has_key? key}.
+      map { |key| [key, hsh[key]]}
+    Hash[valid]
+  end
 
   def index
     @all_ratings = Movie.ratings
-    # Grab the subset of our param and session keys that we care about.
-    param_keys = params.keys & @@session_keys
-    session_keys = session.keys & @@session_keys
-    if (param_keys | session_keys).size != param_keys.size
+    valid_params = get_session(params)
+    valid_session = get_session(session)
+    if (valid_params.keys | valid_session.keys).size != valid_params.size
       # There are session parameters that aren't in params.
-      params.update(Hash[session_keys.zip(session.values_at(session_keys))])
-      redirect_to
+      valid_session.update(valid_params)
+      redirect_to params.merge! valid_session
     end
-    # Update our session parameters
-    session.update(params)
+    session.update(valid_params)
 
     # Kind of need this to be set.
     if session[:ratings]
